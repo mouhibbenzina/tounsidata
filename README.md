@@ -4,6 +4,31 @@ A lightweight, open-source Python CLI for exploring Tunisia's national open-data
 
 > TounsiData is an independent community project, not an official government service. Dataset availability, quality, reuse rights, and freshness are determined by each publisher. Check a dataset's license and metadata before using it.
 
+## Install and run (Windows PowerShell)
+
+Install [Python 3.10 or newer](https://www.python.org/downloads/) first. Open PowerShell and run:
+
+```powershell
+git clone https://github.com/mouhibbenzina/tounsidata.git
+Set-Location tounsidata
+python -m pip install .
+tounsidata --help
+```
+
+Search the catalog, then copy a dataset ID from the results to view its details or download it:
+
+```powershell
+tounsidata search climat --limit 3
+tounsidata show donnees-climatiques-station-weslatia-dgacta
+tounsidata download donnees-climatiques-station-weslatia-dgacta --output data\climat.csv
+```
+
+If PowerShell says `tounsidata` is not recognized after installation, run the CLI through Python instead:
+
+```powershell
+python -m tounsidata.cli search climat --limit 3
+```
+
 ## Quick start
 
 ```bash
