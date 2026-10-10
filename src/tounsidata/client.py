@@ -50,6 +50,11 @@ class CatalogClient:
         return datasets
 
     def get_dataset(self, identifier: str) -> dict[str, Any]:
+        if identifier in {"DATASET_ID", "<DATASET_ID>"}:
+            raise CatalogError(
+                "DATASET_ID is an example placeholder. Replace it with an ID from "
+                "'tounsidata search', such as 'donnees-climatiques-station-weslatia-dgacta'."
+            )
         dataset = self._get("package_show", {"id": identifier})
         if not dataset.get("name") and not dataset.get("id"):
             raise CatalogError("Catalog dataset response was empty or malformed.")

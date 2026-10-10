@@ -45,6 +45,13 @@ class CatalogClientTests(unittest.TestCase):
             CatalogClient().get_dataset("missing")
 
     @patch("tounsidata.client.urlopen")
+    def test_get_dataset_explains_example_placeholder(self, urlopen):
+        with self.assertRaisesRegex(CatalogError, "example placeholder"):
+            CatalogClient().get_dataset("DATASET_ID")
+
+        urlopen.assert_not_called()
+
+    @patch("tounsidata.client.urlopen")
     def test_search_rejects_invalid_result_shape(self, urlopen):
         urlopen.return_value = FakeResponse({"success": True, "result": {"results": None}})
 

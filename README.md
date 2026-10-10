@@ -9,8 +9,7 @@ A lightweight, open-source Python CLI for exploring Tunisia's national open-data
 ```bash
 python -m pip install .
 tounsidata search emploi
-tounsidata show DATASET_ID
-tounsidata download DATASET_ID --output data/dataset.csv
+tounsidata show donnees-climatiques-station-weslatia-dgacta
 ```
 
 Search by French, Arabic, or other catalog terms:
@@ -20,7 +19,13 @@ tounsidata search "transport" --limit 5
 tounsidata search "بطالة" --json
 ```
 
-Search results show the catalog dataset name as its ID. `show` prints complete metadata, including publisher, license, descriptions, and resource links. For a dataset with multiple resources, use `--resource RESOURCE_ID` with `download`; otherwise the first downloadable resource is used.
+Search results show the dataset ID to pass to `show` or `download`. Replace example values such as `DATASET_ID` with an actual ID from your search results; typing the placeholder literally will not work. For example:
+
+```bash
+tounsidata download donnees-climatiques-station-weslatia-dgacta --output data/climat.csv
+```
+
+`show` prints complete metadata, including publisher, license, descriptions, and resource links. For a dataset with multiple resources, use `--resource RESOURCE_ID` with `download`; otherwise the first downloadable resource is used.
 
 ## Development
 
