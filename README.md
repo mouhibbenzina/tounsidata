@@ -40,6 +40,42 @@ No third-party runtime packages are required. To test against another CKAN insta
 tounsidata --api-url https://catalog.data.gov.tn/api/3/action search agriculture
 ```
 
+## Try every CLI scenario (Windows PowerShell)
+
+Run these commands from the cloned `tounsidata` repository folder. Install the current checkout, then run the automated tests:
+
+```powershell
+python -m pip install -e .
+python -m unittest discover -s tests -v
+```
+
+Try a live search, JSON output, and an intentional no-results search:
+
+```powershell
+tounsidata search climat --limit 3
+tounsidata search climat --limit 2 --json
+tounsidata search no-such-tounsidata-query-987654 --limit 2
+```
+
+Copy an ID from the search output, then inspect and download that dataset:
+
+```powershell
+$dataset = "donnees-climatiques-station-weslatia-dgacta"
+tounsidata show $dataset
+New-Item -ItemType Directory -Force data | Out-Null
+tounsidata download $dataset --output data\climat.csv
+Get-Item data\climat.csv
+```
+
+To exercise resource selection, find a resource `id` in `tounsidata show $dataset` and pass it to `--resource RESOURCE_ID`. The first downloadable resource is selected when `--resource` is omitted.
+
+These commands intentionally return errors: the first explains that `DATASET_ID` is only a placeholder, and the second rejects a limit outside 1–100.
+
+```powershell
+tounsidata show DATASET_ID
+tounsidata search climat --limit 0
+```
+
 ## Data source
 
 The default endpoint is the public [CKAN Action API](https://catalog.data.gov.tn/api/3/action) for Tunisia's [national open-data catalog](https://data.gov.tn/). TounsiData fetches catalog metadata and resource URLs; it does not mirror or modify the published datasets.

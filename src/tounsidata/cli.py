@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import ssl
 import sys
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,21 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from .client import DEFAULT_API_URL, CatalogClient, CatalogError
+
+
+def _configure_stdout() -> None:
+    reconfigure = getattr(sys.stdout, "reconfigure", None)
+    if reconfigure is not None:
+        reconfigure(errors="backslashreplace")
+
+
+def _download_ssl_context() -> ssl.SSLContext:
+    context = ssl.create_default_context()
+    if hasattr(ssl, "enum_certificates"):
+        for certificate, encoding, _trust in ssl.enum_certificates("ROOT"):
+            if encoding == "x509_asn":
+                context.load_verify_locations(cadata=ssl.DER_cert_to_PEM_cert(certificate))
+    return context
 
 
 def _display_search(datasets: list[dict[str, Any]]) -> None:
@@ -48,11 +64,16 @@ def _download(dataset: dict[str, Any], resource_id: str | None, output: Path) ->
 
     request = Request(resource["url"], headers={"User-Agent": "TounsiData/0.1.0"})
     try:
-        with urlopen(request, timeout=30) as response:
+        with urlopen(request, timeout=30, context=_download_ssl_context()) as response:
             content = response.read()
     except HTTPError as exc:
         raise CatalogError(f"Resource download returned HTTP {exc.code}.") from exc
     except URLError as exc:
+        if isinstance(exc.reason, ssl.SSLCertVerificationError):
+            raise CatalogError(
+                "TLS certificate verification failed for this resource. Check your "
+                "system date and trusted certificates; certificate verification stays enabled."
+            ) from exc
         raise CatalogError(f"Could not download resource: {exc.reason}") from exc
     except TimeoutError as exc:
         raise CatalogError("Resource download timed out.") from exc
@@ -91,6 +112,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _configure_stdout()
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "search" and not 1 <= args.limit <= 100:
@@ -101,11 +123,11 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "search":
             datasets = client.search(args.query, args.limit)
             if args.json:
-                print(json.dumps(datasets, ensure_ascii=False, indent=2))
+                print(json.dumps(datasets, ensure_ascii=True, indent=2))
             else:
                 _display_search(datasets)
         elif args.command == "show":
-            print(json.dumps(client.get_dataset(args.dataset), ensure_ascii=False, indent=2))
+            print(json.dumps(client.get_dataset(args.dataset), ensure_ascii=True, indent=2))
         elif args.command == "download":
             _download(client.get_dataset(args.dataset), args.resource, args.output)
     except CatalogError as exc:
