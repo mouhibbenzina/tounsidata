@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tounsidata"
+version = "0.1.0"
+description = "A small Python CLI for Tunisia's national open-data catalog"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+keywords = ["tunisia", "open-data", "ckan", "civic-tech"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.scripts]
+tounsidata = "tounsidata.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
